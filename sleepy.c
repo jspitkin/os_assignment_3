@@ -122,6 +122,11 @@ sleepy_write(struct file *filp, const char __user *buf, size_t count,
   if (count != 4)
     return -EINVAL;
 
+  // Copy user input and calculate sleep time in jiffies
+  int sleep_seconds;
+  copy_from_user(&sleep_seconds, buf, count);
+  unsigned long sleep_jiffies = sleep_seconds * HZ;
+
   // Acquire mutex to access device state
   if (mutex_lock_killable(&dev->sleepy_mutex))
     return -EINTR;
@@ -131,11 +136,6 @@ sleepy_write(struct file *filp, const char __user *buf, size_t count,
 
   // Release mutex on device state
   mutex_unlock(&dev->sleepy_mutex);
-
-  // Copy user input and calculate sleep time in jiffies
-  int sleep_seconds;
-  copy_from_user(&sleep_seconds, buf, count);
-  unsigned long sleep_jiffies = sleep_seconds * HZ;
 
   // Put process to sleep for sleep_jiffies or until a read happens
   retval = wait_event_interruptible_timeout(dev->wq, flag != dev->flag, sleep_jiffies);
