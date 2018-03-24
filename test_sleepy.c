@@ -43,7 +43,7 @@ int main(void) {
   assert(r >= 0);
   close(fd);
 
-  sleep(7); /* sleep for 7 seconds*/
+  sleep(2); /* sleep for 7 seconds*/
 
   /* now read from device 0*/
   fd = open("/dev/sleepy0", O_RDWR);

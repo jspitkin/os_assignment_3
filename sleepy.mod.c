@@ -22,6 +22,7 @@ __attribute__((section("__versions"))) = {
 	{ 0x1ab099dd, __VMLINUX_SYMBOL_STR(device_create) },
 	{ 0x29c6165c, __VMLINUX_SYMBOL_STR(cdev_add) },
 	{ 0x111d6b33, __VMLINUX_SYMBOL_STR(cdev_init) },
+	{ 0xf432dd3d, __VMLINUX_SYMBOL_STR(__init_waitqueue_head) },
 	{ 0x9d442502, __VMLINUX_SYMBOL_STR(__mutex_init) },
 	{ 0xd2b09ce5, __VMLINUX_SYMBOL_STR(__kmalloc) },
 	{ 0xd7bd463f, __VMLINUX_SYMBOL_STR(__class_create) },
@@ -31,14 +32,14 @@ __attribute__((section("__versions"))) = {
 	{ 0x37a0cba, __VMLINUX_SYMBOL_STR(kfree) },
 	{ 0x961b0ffc, __VMLINUX_SYMBOL_STR(cdev_del) },
 	{ 0x81ba77be, __VMLINUX_SYMBOL_STR(device_destroy) },
-	{ 0xfa66f77c, __VMLINUX_SYMBOL_STR(finish_wait) },
 	{        0, __VMLINUX_SYMBOL_STR(schedule_timeout) },
+	{ 0xfa66f77c, __VMLINUX_SYMBOL_STR(finish_wait) },
 	{ 0x34f22f94, __VMLINUX_SYMBOL_STR(prepare_to_wait_event) },
 	{ 0x4f6b400b, __VMLINUX_SYMBOL_STR(_copy_from_user) },
 	{ 0x7d11c268, __VMLINUX_SYMBOL_STR(jiffies) },
-	{ 0xcf21d241, __VMLINUX_SYMBOL_STR(__wake_up) },
 	{ 0x9f14c292, __VMLINUX_SYMBOL_STR(mutex_unlock) },
 	{ 0x29b95873, __VMLINUX_SYMBOL_STR(mutex_lock_killable) },
+	{ 0xcf21d241, __VMLINUX_SYMBOL_STR(__wake_up) },
 	{ 0x27e1a049, __VMLINUX_SYMBOL_STR(printk) },
 	{ 0xbdfb6dbb, __VMLINUX_SYMBOL_STR(__fentry__) },
 };
@@ -49,4 +50,4 @@ __attribute__((section(".modinfo"))) =
 "depends=";
 
 
-MODULE_INFO(srcversion, "33615FDE5503028779B0143");
+MODULE_INFO(srcversion, "3853AC32B7043FFA47B125A");

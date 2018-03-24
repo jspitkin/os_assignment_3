@@ -22,7 +22,7 @@ struct sleepy_dev {
   struct mutex sleepy_mutex; 
   struct cdev cdev;
   unsigned long sleep_time;
-  //static DECLARE_WAIT_QUEUE_HEAD(wq);
   wait_queue_head_t wq;
+  int flag;
 };
 #endif /* SLEEPY_H_1727_INCLUDED */

@@ -92,17 +92,17 @@ sleepy_read(struct file *filp, char __user *buf, size_t count,
   struct sleepy_dev *dev = (struct sleepy_dev *)filp->private_data;
   ssize_t retval = 0;
 	
+  dev->flag = 1;
+  wake_up_interruptible(&dev->wq); 
   if (mutex_lock_killable(&dev->sleepy_mutex))
     return -EINTR;
-  mutex_unlock(&dev->sleepy_mutex);
-  /* YOUR CODE HERE */
+
 
   int minor;
   minor = (int)iminor(filp->f_path.dentry->d_inode);
   printk("SLEEPY_READ DEVICE (%d): Process is waking everyone up. \n", minor);
-  wake_up_interruptible(&dev->wq); 
-  /* END YOUR CODE */
 	
+  mutex_unlock(&dev->sleepy_mutex);
   return retval;
 }
                 
@@ -115,25 +115,22 @@ sleepy_write(struct file *filp, const char __user *buf, size_t count,
 	
   if (mutex_lock_killable(&dev->sleepy_mutex))
     return -EINTR;
-  /* YOUR CODE HERE */
-  // If a process doesn't write 4 bytes, return -EINVAL
+
   if (count != 4)
     return -EINVAL;
 
-  dev->sleep_time = jiffies;
   mutex_unlock(&dev->sleepy_mutex);
+  dev->sleep_time = jiffies;
   int sleep_time;
   copy_from_user(&sleep_time, buf, count);
   unsigned long sleep_jiffies = sleep_time * HZ;
-  wait_event_interruptible_timeout(&dev->wq, 0, sleep_jiffies);
+  wait_event_interruptible_timeout(dev->wq, dev->flag != 0, sleep_jiffies);
+  dev->flag = 0;
   
   int minor;
   size_t remaining_seconds = sleep_time - ((long)jiffies - (long)dev->sleep_time)/HZ;
-  printk("Jiffies %ul\n", jiffies);
-  printk("Sleep %ul\n", dev->sleep_time);
   minor = (int)iminor(filp->f_path.dentry->d_inode);
   printk("SLEEPY_WRITE DEVICE (%d): remaining = %zd \n", minor, remaining_seconds);
-  /* END YOUR CODE */
 	
   return remaining_seconds;
 }
@@ -171,6 +168,7 @@ sleepy_construct_device(struct sleepy_dev *dev, int minor,
   /* Memory is to be allocated when the device is opened the first time */
   dev->data = NULL;     
   mutex_init(&dev->sleepy_mutex);
+  init_waitqueue_head(&dev->wq);
     
   cdev_init(&dev->cdev, &sleepy_fops);
   dev->cdev.owner = THIS_MODULE;
