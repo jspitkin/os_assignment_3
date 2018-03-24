@@ -92,17 +92,22 @@ sleepy_read(struct file *filp, char __user *buf, size_t count,
   struct sleepy_dev *dev = (struct sleepy_dev *)filp->private_data;
   ssize_t retval = 0;
 	
-  dev->flag = 1;
-  wake_up_interruptible(&dev->wq); 
+  // Acquire mutex to access device state
   if (mutex_lock_killable(&dev->sleepy_mutex))
     return -EINTR;
 
+  // Advance condition flag and wake up sleeping processes in the queue
+  dev->flag++;
+  wake_up_interruptible(&dev->wq); 
 
+  // Release mutex on device state
+  mutex_unlock(&dev->sleepy_mutex);
+
+  // Print testing information
   int minor;
   minor = (int)iminor(filp->f_path.dentry->d_inode);
   printk("SLEEPY_READ DEVICE (%d): Process is waking everyone up. \n", minor);
 	
-  mutex_unlock(&dev->sleepy_mutex);
   return retval;
 }
                 
@@ -113,26 +118,38 @@ sleepy_write(struct file *filp, const char __user *buf, size_t count,
   struct sleepy_dev *dev = (struct sleepy_dev *)filp->private_data;
   ssize_t retval = 0;
 	
-  if (mutex_lock_killable(&dev->sleepy_mutex))
-    return -EINTR;
-
+  // Invalid input - input must be 4 bytes long
   if (count != 4)
     return -EINVAL;
 
+  // Acquire mutex to access device state
+  if (mutex_lock_killable(&dev->sleepy_mutex))
+    return -EINTR;
+
+  // Store the devices current flag state
+  unsigned long flag = dev->flag;
+
+  // Release mutex on device state
   mutex_unlock(&dev->sleepy_mutex);
-  dev->sleep_time = jiffies;
-  int sleep_time;
-  copy_from_user(&sleep_time, buf, count);
-  unsigned long sleep_jiffies = sleep_time * HZ;
-  wait_event_interruptible_timeout(dev->wq, dev->flag != 0, sleep_jiffies);
-  dev->flag = 0;
+
+  // Copy user input and calculate sleep time in jiffies
+  int sleep_seconds;
+  copy_from_user(&sleep_seconds, buf, count);
+  unsigned long sleep_jiffies = sleep_seconds * HZ;
+
+  // Put process to sleep for sleep_jiffies or until a read happens
+  retval = wait_event_interruptible_timeout(dev->wq, flag != dev->flag, sleep_jiffies);
+
+  // Calculate remaining sleep seconds if sleep was interrupted
+  if (retval != 0)
+    retval = retval/HZ;
   
+  // Print testing information
   int minor;
-  size_t remaining_seconds = sleep_time - ((long)jiffies - (long)dev->sleep_time)/HZ;
   minor = (int)iminor(filp->f_path.dentry->d_inode);
-  printk("SLEEPY_WRITE DEVICE (%d): remaining = %zd \n", minor, remaining_seconds);
+  printk("SLEEPY_WRITE DEVICE (%d): remaining = %zd \n", minor, retval);
 	
-  return remaining_seconds;
+  return retval;
 }
 
 loff_t 
@@ -168,7 +185,10 @@ sleepy_construct_device(struct sleepy_dev *dev, int minor,
   /* Memory is to be allocated when the device is opened the first time */
   dev->data = NULL;     
   mutex_init(&dev->sleepy_mutex);
+ 
+  // Initialize a wait queue and flag for each device
   init_waitqueue_head(&dev->wq);
+  dev->flag = 0;
     
   cdev_init(&dev->cdev, &sleepy_fops);
   dev->cdev.owner = THIS_MODULE;
