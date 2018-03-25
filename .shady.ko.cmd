@@ -1,1 +1,1 @@
-cmd_/home/jsp/assignment3/shady.ko := ld -r -m elf_x86_64 -T /usr/src/linux-headers-3.13.0-32-generic/scripts/module-common.lds --build-id  -o /home/jsp/assignment3/shady.ko /home/jsp/assignment3/shady.o /home/jsp/assignment3/shady.mod.o
+cmd_/home/jsp/assignment3/shady.ko := ld -r -m elf_x86_64 -T /usr/src/linux-headers-3.13.0-142-generic/scripts/module-common.lds --build-id  -o /home/jsp/assignment3/shady.ko /home/jsp/assignment3/shady.o /home/jsp/assignment3/shady.mod.o
