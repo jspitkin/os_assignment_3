@@ -17,24 +17,24 @@ __attribute__((section(".gnu.linkonce.this_module"))) = {
 static const struct modversion_info ____versions[]
 __used
 __attribute__((section("__versions"))) = {
-	{ 0x4c5efdbd, __VMLINUX_SYMBOL_STR(module_layout) },
+	{ 0x9412fa01, __VMLINUX_SYMBOL_STR(module_layout) },
 	{ 0xb6b46a7c, __VMLINUX_SYMBOL_STR(param_ops_int) },
 	{ 0x8b9200fd, __VMLINUX_SYMBOL_STR(lookup_address) },
-	{ 0x81831b89, __VMLINUX_SYMBOL_STR(device_create) },
-	{ 0xf7b46bdc, __VMLINUX_SYMBOL_STR(cdev_add) },
-	{ 0x4b6fd3e3, __VMLINUX_SYMBOL_STR(cdev_init) },
-	{ 0xedc2c661, __VMLINUX_SYMBOL_STR(__mutex_init) },
+	{ 0xda6982e5, __VMLINUX_SYMBOL_STR(device_create) },
+	{ 0x987fde2e, __VMLINUX_SYMBOL_STR(cdev_add) },
+	{ 0xb46aca86, __VMLINUX_SYMBOL_STR(cdev_init) },
+	{ 0xac7f6dfd, __VMLINUX_SYMBOL_STR(__mutex_init) },
 	{ 0xd2b09ce5, __VMLINUX_SYMBOL_STR(__kmalloc) },
-	{ 0xfc4ae1da, __VMLINUX_SYMBOL_STR(__class_create) },
+	{ 0xd7bd463f, __VMLINUX_SYMBOL_STR(__class_create) },
 	{ 0x29537c9e, __VMLINUX_SYMBOL_STR(alloc_chrdev_region) },
 	{ 0x7485e15e, __VMLINUX_SYMBOL_STR(unregister_chrdev_region) },
-	{ 0x920d631a, __VMLINUX_SYMBOL_STR(class_destroy) },
+	{ 0x268f87ce, __VMLINUX_SYMBOL_STR(class_destroy) },
 	{ 0x37a0cba, __VMLINUX_SYMBOL_STR(kfree) },
-	{ 0x1a505334, __VMLINUX_SYMBOL_STR(cdev_del) },
-	{ 0xda23869b, __VMLINUX_SYMBOL_STR(device_destroy) },
-	{ 0x4e7fc06f, __VMLINUX_SYMBOL_STR(mutex_unlock) },
-	{ 0x62c89b6c, __VMLINUX_SYMBOL_STR(mutex_lock_killable) },
-	{ 0x9930433, __VMLINUX_SYMBOL_STR(current_task) },
+	{ 0xd743757b, __VMLINUX_SYMBOL_STR(cdev_del) },
+	{ 0xc9296d71, __VMLINUX_SYMBOL_STR(device_destroy) },
+	{ 0x1eecf3fc, __VMLINUX_SYMBOL_STR(mutex_unlock) },
+	{ 0x5f6629de, __VMLINUX_SYMBOL_STR(mutex_lock_killable) },
+	{ 0xe94c016a, __VMLINUX_SYMBOL_STR(current_task) },
 	{ 0x27e1a049, __VMLINUX_SYMBOL_STR(printk) },
 	{ 0xbdfb6dbb, __VMLINUX_SYMBOL_STR(__fentry__) },
 };
@@ -45,4 +45,4 @@ __attribute__((section(".modinfo"))) =
 "depends=";
 
 
-MODULE_INFO(srcversion, "9626AB37CB07F7AADB14DDA");
+MODULE_INFO(srcversion, "525962624300F9296087AB7");

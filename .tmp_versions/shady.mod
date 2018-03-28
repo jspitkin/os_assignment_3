@@ -1,2 +1,2 @@
-/home/jsp/assignment3/shady.ko
-/home/jsp/assignment3/shady.o
+/home/student/os_assignment_3/shady.ko
+/home/student/os_assignment_3/shady.o

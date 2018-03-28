@@ -1,2 +1,2 @@
-/home/jsp/assignment3/sleepy.ko
-/home/jsp/assignment3/sleepy.o
+/home/student/os_assignment_3/sleepy.ko
+/home/student/os_assignment_3/sleepy.o
