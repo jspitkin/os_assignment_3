@@ -123,8 +123,10 @@ sleepy_write(struct file *filp, const char __user *buf, size_t count,
     return -EINVAL;
 
   // Copy user input and calculate sleep time in jiffies
-  int sleep_seconds;
-  copy_from_user(&sleep_seconds, buf, count);
+  int sleep_seconds, ret;
+  ret = copy_from_user(&sleep_seconds, buf, count);
+  if (ret != 0)
+    return -EINVAL;
   unsigned long sleep_jiffies = sleep_seconds * HZ;
 
   // Acquire mutex to access device state
